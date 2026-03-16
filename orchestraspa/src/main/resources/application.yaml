@@ -1,0 +1,40 @@
+server: 
+  port: 8080
+
+spring: 
+  datasource: 
+    # Docker uses the service name 'mysqldb' defined in docker-compose.yml
+    url: jdbc:mysql://mysqldb:3306/orchestra_db?allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&useSSL=false
+    username: root
+    password: root_password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  jpa: 
+    show-sql: true
+    hibernate: 
+      ddl-auto: update
+    properties: 
+      hibernate: 
+        dialect: org.hibernate.dialect.MySQLDialect
+            
+  # Kafka Configuration
+  kafka:
+    bootstrap-servers: kafka:29092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      # This handles the Java Object -> JSON conversion
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: orchestra-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      # This handles the JSON -> Java Object conversion
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.hps.orchestraspa.model"
+
+logging:
+  level: 
+    com: 
+      hps: 
+        orchestraspa: TRACE
